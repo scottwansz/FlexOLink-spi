@@ -25,7 +25,8 @@ void main(void)
 
 	while (1) {
 		spi_test_send();
-		printk("print in while loop\n");
-		k_msleep(SLEEP_TIME_MS);
+		// printk("print in while loop\n");
+		// spi_fetch_data();
+		k_msleep(1000);
 	}
 }

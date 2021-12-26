@@ -43,7 +43,7 @@ void spi_config(void)
 void spi_test_send(void)
 {
 	int err;
-	static uint8_t tx_buffer[1] = {0x80};
+	static uint8_t tx_buffer[1] = {0x00 | 0x80};
 	static uint8_t rx_buffer[2];
 
 	const struct spi_buf tx_buf = {
@@ -71,5 +71,84 @@ void spi_test_send(void)
 		/* Connect MISO to MOSI for loopback */
 		printk("SPI sent/received: %x/%x\n", tx_buffer[0], rx_buffer[1]);
 		tx_buffer[0]++;
+
+        if( tx_buffer[0] > (0x32 | 0x80) ) {
+            tx_buffer[0] = 0x2d | 0x80;
+        }
 	}	
-}
+};
+
+
+static int spi_read_and_write(
+        uint8_t *opcode, 
+        size_t  opcode_size,
+        uint8_t *data,
+        size_t  data_size
+    )
+{
+    bool isWREG = false;
+
+    printk("\nSPI sent: ");
+	for (int i = 0; i < opcode_size; i++)
+	{
+		printk("%#x ", opcode[i]);
+	}
+    printk("\n");
+
+	const struct spi_buf buf[2] = {
+		{
+			.buf = opcode,
+			.len = opcode_size
+		},
+		{
+			.buf = data,
+			.len = data_size
+		}
+	};
+
+	const struct spi_buf_set tx = {
+		.buffers = buf,
+		.count = isWREG ? 2 : 1
+	};
+
+	const struct spi_buf_set rx = {
+		.buffers = buf,
+		.count = isWREG ? 0 : 2
+	};
+
+    
+    int err = spi_transceive(device_spi, &spi_cfg, &tx, &rx);
+
+	if (err >= 0) {
+
+        printk("\nSPI success: %d\n", err);
+
+    } else {
+
+		printk("\nSPI error: %d\n", err);
+	};
+
+    return err;
+};
+
+
+void spi_fetch_data(){
+
+    uint8_t opcode[1] = {
+        0x32 | 0x80,
+        // 0x34 | 0x80
+    };  // 0x80: read register
+
+    uint8_t data[1];
+    spi_read_and_write(opcode, sizeof(opcode), data, sizeof(data));
+
+    printk("\nSPI data: ");
+    for (size_t i = 0; i < sizeof(data); i++)
+    {
+        printk("%#x ", data[i]);
+    }
+    
+
+    
+
+};
