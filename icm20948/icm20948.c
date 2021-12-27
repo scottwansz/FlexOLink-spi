@@ -18,7 +18,7 @@ static const struct spi_config spi_cfg = {
 	.cs = &spim_cs_one,	
 };
 
-void spi_config(void)
+static void spi_config(void)
 {
 	spim_cs_one.gpio_dev = device_get_binding(DT_GPIO_LABEL(MY_SPIM, cs_gpios));
    
@@ -40,11 +40,12 @@ void spi_config(void)
 		printk("Could not get GPIO LABEL %s device\n", DT_GPIO_LABEL(MY_SPIM, cs_gpios));
 }
 
+
 void spi_test_send(void)
 {
 	int err;
-	static uint8_t tx_buffer[1] = {0x00 | 0x80};
-	static uint8_t rx_buffer[2];
+	static uint8_t tx_buffer[4] = {0x06, 0x01, 0x00, 0x00};
+	static uint8_t rx_buffer[0];
 
 	const struct spi_buf tx_buf = {
 		.buf = tx_buffer,
@@ -68,13 +69,20 @@ void spi_test_send(void)
 	if (err) {
 		printk("SPI error: %d\n", err);
 	} else {
-		/* Connect MISO to MOSI for loopback */
-		printk("SPI sent/received: %x/%x\n", tx_buffer[0], rx_buffer[1]);
-		tx_buffer[0]++;
 
-        if( tx_buffer[0] > (0x32 | 0x80) ) {
-            tx_buffer[0] = 0x2d | 0x80;
-        }
+		printk("\nSPI TX: ");
+		for (size_t i = 0; i < sizeof(tx_buffer); i++)
+		{
+			printk("%02x ", tx_buffer[i]);
+		}
+		
+
+		printk("\nSPI RX: ");
+		for (size_t i = 0; i < sizeof(rx_buffer); i++)
+		{
+			printk("%02x ", rx_buffer[i]);
+		}
+
 	}	
 };
 
@@ -86,7 +94,8 @@ static int spi_read_and_write(
         size_t  data_size
     )
 {
-    bool isWREG = false;
+    bool isWREG = ( opcode[0] >= 0x80 ? false : true );
+	printk("\nisWRG: %s", isWREG ? "true" : "false");
 
     printk("\nSPI sent: ");
 	for (int i = 0; i < opcode_size; i++)
@@ -121,34 +130,51 @@ static int spi_read_and_write(
 
 	if (err >= 0) {
 
-        printk("\nSPI success: %d\n", err);
+        printk("\nSPI success: %d", err);
 
     } else {
 
-		printk("\nSPI error: %d\n", err);
+		printk("\nSPI error: %d", err);
 	};
 
     return err;
 };
 
 
+void icm20948_setup(void)
+{
+	spi_config();
+
+	// disable sleep mode
+	uint8_t opcode[1] = {0x06};
+	uint8_t data[1] = {0x01};
+	// spi_read_and_write(opcode, sizeof(opcode), data, sizeof(data));
+}
+
+
 void spi_fetch_data(){
 
     uint8_t opcode[1] = {
-        0x32 | 0x80,
+		// 0x00 | 0x80,
+		// 0x05 | 0x80,	// out: 0x40
+        0x2d | 0x80,	// out: acc_x_h
         // 0x34 | 0x80
     };  // 0x80: read register
 
-    uint8_t data[1];
+    uint8_t data[12];
     spi_read_and_write(opcode, sizeof(opcode), data, sizeof(data));
+
+	// printk("\nSPI opcode: ");
+    // for (size_t i = 0; i < sizeof(opcode); i++)
+    // {
+    //     printk("%#x ", opcode[i]);
+    // }
 
     printk("\nSPI data: ");
     for (size_t i = 0; i < sizeof(data); i++)
     {
         printk("%#x ", data[i]);
     }
-    
-
     
 
 };

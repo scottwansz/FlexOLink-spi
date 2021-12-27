@@ -17,16 +17,15 @@
 
 void main(void)
 {
-	
+	icm20948_setup();
 	printk("SPI config begin ...\n");
-	spi_config();
 
 	printk("Blinky with SPI started\n");
 
 	while (1) {
 		spi_test_send();
 		// printk("print in while loop\n");
-		// spi_fetch_data();
+		spi_fetch_data();
 		k_msleep(1000);
 	}
 }
