@@ -1,0 +1,15 @@
+mainmenu "ADI AD4696 driver"
+
+menu "Application configuration"
+
+module = AD4696_DRIVER
+module-str = AD4696 driver
+
+config AD4696_DRIVER
+	bool "Enable support for the demonstration out of tree driver"
+
+source "subsys/logging/Kconfig.template.log_config"
+
+endmenu
+
+# source "Kconfig.zephyr"

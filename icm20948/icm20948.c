@@ -4,7 +4,7 @@
 
 const struct device * device_spi;
 
-struct spi_cs_control spim_cs_one = { 
+static struct spi_cs_control spim_cs_one = { 
                         .gpio_pin = DT_GPIO_PIN(MY_SPIM, cs_gpios),
                         .gpio_dt_flags = GPIO_ACTIVE_LOW,
                         .delay = 0,
