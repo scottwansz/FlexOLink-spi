@@ -41,7 +41,12 @@ static void spi_config(void)
 }
 
 
-void spi_test_send(void)
+static void my_spi_transceive(
+		// uint8_t *tx_buffer, 
+		// size_t	tx_size,
+		// uint8_t *rx_buffer,
+		// size_t	rx_size
+	)
 {
 	int err;
 	static uint8_t tx_buffer[4] = {0x06, 0x01, 0x00, 0x00};
@@ -49,7 +54,7 @@ void spi_test_send(void)
 
 	const struct spi_buf tx_buf = {
 		.buf = tx_buffer,
-		.len = sizeof(tx_buffer)
+		.len = sizeof(tx_buf) // tx_size
 	};
 	const struct spi_buf_set tx = {
 		.buffers = &tx_buf,
@@ -58,7 +63,7 @@ void spi_test_send(void)
 
 	struct spi_buf rx_buf = {
 		.buf = rx_buffer,
-		.len = sizeof(rx_buffer),
+		.len = sizeof(rx_buffer) // rx_size
 	};
 	const struct spi_buf_set rx = {
 		.buffers = &rx_buf,
@@ -87,7 +92,7 @@ void spi_test_send(void)
 };
 
 
-static int spi_read_and_write(
+static int my_spi_transceive_2(
         uint8_t *opcode, 
         size_t  opcode_size,
         uint8_t *data,
@@ -130,7 +135,12 @@ static int spi_read_and_write(
 
 	if (err >= 0) {
 
-        printk("\nSPI success: %d", err);
+        // printk("\nSPI success: %d", err);
+		printk("\nSPI data: ");
+		for (size_t i = 0; i < data_size; i++)
+		{
+			printk("%#x ", data[i]);
+		}
 
     } else {
 
@@ -145,24 +155,24 @@ void icm20948_setup(void)
 {
 	spi_config();
 
-	// disable sleep mode
-	uint8_t opcode[1] = {0x06};
-	uint8_t data[1] = {0x01};
-	// spi_read_and_write(opcode, sizeof(opcode), data, sizeof(data));
+	uint8_t tx_buffer[4] = {0x06, 0x01, 0x00, 0x00};	// disable sleep mode, enable gyro and accl
+	uint8_t rx_buffer[0];
+	// printk("size of tx_fuff: %d", sizeof(tx_buffer));
+	my_spi_transceive(); // tx_buffer, sizeof(tx_buffer), rx_buffer, 0
 }
 
 
-void spi_fetch_data(){
+void icm20948_fetch_data(){
+
+	// uint8_t tx_buffer[1] = {0x05 | 0x80}, rx_buffer[12];
+	// my_spi_transceive(tx_buffer, sizeof(tx_buffer), rx_buffer, sizeof(rx_buffer));
 
     uint8_t opcode[1] = {
 		// 0x00 | 0x80,
-		// 0x05 | 0x80,	// out: 0x40
-        0x2d | 0x80,	// out: acc_x_h
+		0x05 | 0x80,	// out: 0x40
+        // 0x2d | 0x80,	// out: acc_x_h
         // 0x34 | 0x80
     };  // 0x80: read register
-
-    uint8_t data[12];
-    spi_read_and_write(opcode, sizeof(opcode), data, sizeof(data));
 
 	// printk("\nSPI opcode: ");
     // for (size_t i = 0; i < sizeof(opcode); i++)
@@ -170,11 +180,14 @@ void spi_fetch_data(){
     //     printk("%#x ", opcode[i]);
     // }
 
-    printk("\nSPI data: ");
-    for (size_t i = 0; i < sizeof(data); i++)
-    {
-        printk("%#x ", data[i]);
-    }
+    uint8_t data[12];
+    my_spi_transceive_2(opcode, sizeof(opcode), data, sizeof(data));
+
+    // printk("\nSPI data: ");
+    // for (size_t i = 0; i < sizeof(data); i++)
+    // {
+    //     printk("%#x ", data[i]);
+    // }
     
 
 };
