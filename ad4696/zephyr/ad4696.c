@@ -50,8 +50,8 @@ static void spi_config(void)
 		dev_ad4696 = device_get_binding(DT_LABEL(MY_SPIM)); // recommended syntax
 
 		if (dev_ad4696 != NULL){
-		LOG_INF("SPIM Device: %s", DT_PROP(MY_SPIM,label));
-		LOG_INF("SPIM CSN PIN %d, MISO PIN %d, MOSI PIN %d, CLK PIN %d",
+		LOG_INF("AD4696 Device: %s", DT_PROP(MY_SPIM,label));
+		LOG_INF("AD4696 CSN PIN %d, MISO PIN %d, MOSI PIN %d, CLK PIN %d",
 						DT_GPIO_PIN(MY_SPIM, cs_gpios),
 						DT_PROP(MY_SPIM, miso_pin),
 						DT_PROP(MY_SPIM, mosi_pin),
