@@ -13,7 +13,7 @@
 
 LOG_MODULE_REGISTER(ad4696, CONFIG_AD4696_DRIVER_LOG_LEVEL);
 
-#define MY_SPIM DT_NODELABEL(spi1)
+#define MY_SPIM DT_NODELABEL(spi0)
 
 /**
  * This is a minimal example of an out-of-tree driver

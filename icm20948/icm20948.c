@@ -1,6 +1,6 @@
 #include <drivers/spi.h>
 
-#define MY_SPIM DT_NODELABEL(spi0)
+#define MY_SPIM DT_NODELABEL(spi1)
 
 const struct device * device_spi;
 
@@ -158,7 +158,9 @@ void icm20948_setup(void)
 	uint8_t tx_buffer[4] = {0x06, 0x01, 0x00, 0x00};	// disable sleep mode, enable gyro and accl
 	uint8_t rx_buffer[0];
 	// printk("size of tx_fuff: %d", sizeof(tx_buffer));
-	my_spi_transceive(); // tx_buffer, sizeof(tx_buffer), rx_buffer, 0
+	// my_spi_transceive(); // tx_buffer, sizeof(tx_buffer), rx_buffer, 0
+
+	my_spi_transceive_2(tx_buffer, sizeof(tx_buffer), rx_buffer, sizeof(rx_buffer));
 }
 
 
@@ -169,8 +171,8 @@ void icm20948_fetch_data(){
 
     uint8_t opcode[1] = {
 		// 0x00 | 0x80,
-		0x05 | 0x80,	// out: 0x40
-        // 0x2d | 0x80,	// out: acc_x_h
+		// 0x05 | 0x80,	// out: 0x40
+        0x2d | 0x80,	// out: acc_x_h
         // 0x34 | 0x80
     };  // 0x80: read register
 
