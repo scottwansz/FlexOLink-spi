@@ -13,7 +13,7 @@
 
 LOG_MODULE_REGISTER(ad4696, CONFIG_AD4696_DRIVER_LOG_LEVEL);
 
-#define MY_SPIM DT_NODELABEL(spi0)
+#define MY_SPIM DT_NODELABEL(spi1)
 
 /**
  * This is a minimal example of an out-of-tree driver
@@ -68,12 +68,13 @@ static void spi_config(void)
 static int init(const struct device *dev)
 {
 	data.foo = 5;
-
+	spi_config();
 	return 0;
 }
 
 
-static int spi_read_and_write(
+// spi read and write
+static int spi_rw(
         uint8_t *opcode, 
         size_t  opcode_size,
         uint8_t *data,
@@ -81,13 +82,13 @@ static int spi_read_and_write(
     )
 {
     bool isWREG = ( opcode[0] >= 0x80 ? false : true );
-	LOG_INF("\nisWRG: %s", isWREG ? "true" : "false");
+	LOG_INF("isWRG: %s", isWREG ? "true" : "false");
 
-    LOG_INF("\nSPI sent: ");
-	for (int i = 0; i < opcode_size; i++)
-	{
-		printk("%#x ", opcode[i]);
-	}
+    LOG_INF("SPI opcode: %#02x %02x", opcode[0], opcode[1]);
+	// for (int i = 0; i < opcode_size; i++)
+	// {
+	// 	printk("%#x ", opcode[i]);
+	// }
 
 	const struct spi_buf buf[2] = {
 		{
@@ -115,7 +116,7 @@ static int spi_read_and_write(
 
 	if (err >= 0) {
 
-        LOG_INF("\nSPI success: %d", err);
+        // LOG_INF("SPI success: %d", err);
 
     } else {
 
@@ -130,7 +131,14 @@ static int spi_read_and_write(
 static void print_impl(const struct device *dev)
 {
 	LOG_INF("Hello World from the AD4696: %d", data.foo);
-	spi_config();
+
+	uint8_t opcode[] = {0x80, 0x0c}, data[2];
+	LOG_INF("size of opcode: %d", sizeof(opcode));
+
+	spi_rw(opcode, sizeof(opcode), data, sizeof(data));
+	LOG_INF("spi data: %#02x %02x", data[0], data[1]);
+
+
 	__ASSERT(data.foo == 5, "Device was not initialized!");
 }
 
@@ -147,5 +155,5 @@ static inline void z_vrfy_ad4696_print(const struct device *dev)
 
 DEVICE_DEFINE(ad4696, "ADI_AD4696",
 		    init, NULL, &data, NULL,
-		    PRE_KERNEL_1, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
+		    APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
 		    &((struct ad4696_driver_api){ .print = print_impl }));

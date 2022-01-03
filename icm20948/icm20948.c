@@ -1,6 +1,6 @@
 #include <drivers/spi.h>
 
-#define MY_SPIM DT_NODELABEL(spi1)
+#define MY_SPIM DT_NODELABEL(spi0)
 
 const struct device * device_spi;
 

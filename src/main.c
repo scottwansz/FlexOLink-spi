@@ -28,9 +28,9 @@ static void user_entry(void *p1, void *p2, void *p3)
 
 void main(void)
 {
-	LOG_INF("SPI config begin ...\n");
+	LOG_INF("SPI config begin ...");
 	icm20948_setup();
-	LOG_INF("Blinky with SPI started\n");
+	LOG_INF("Blinky with SPI started");
 
 	// while (1) {
 	// 	spi_test_send();
@@ -47,7 +47,7 @@ void main(void)
 
 	__ASSERT(dev, "Failed to get device binding");
 
-	LOG_INF("device is %p, name is %s\n", dev, dev->name);
+	LOG_INF("device is %p, name is %s", dev, dev->name);
 
 	k_object_access_grant(dev, k_current_get());
 	k_thread_user_mode_enter(user_entry, NULL, NULL, NULL);
