@@ -11,7 +11,7 @@
 #include <logging/log.h>
 
 #include "ad4696.h"
-#include "../icm20948/icm20948.h"
+#include "icm20948.h"
 
 LOG_MODULE_REGISTER(main);
 

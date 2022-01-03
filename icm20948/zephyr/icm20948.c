@@ -1,4 +1,9 @@
 #include <drivers/spi.h>
+#include <logging/log.h>
+
+#include "icm20948.h"
+
+LOG_MODULE_REGISTER(icm20948, CONFIG_ICM20948_DRIVER_LOG_LEVEL);
 
 #define MY_SPIM DT_NODELABEL(spi1)
 

@@ -1,4 +1,5 @@
 list(APPEND ZEPHYR_EXTRA_MODULES
+  ${CMAKE_CURRENT_SOURCE_DIR}/icm20948
   ${CMAKE_CURRENT_SOURCE_DIR}/ad4696
 )
 
@@ -8,5 +9,5 @@ project(blinky)
 
 target_sources(app PRIVATE 
     src/main.c
-    icm20948/icm20948.c
+    # icm20948/icm20948.c
 )

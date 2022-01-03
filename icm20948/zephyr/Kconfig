@@ -1,0 +1,15 @@
+mainmenu "ICM20948 driver"
+
+menu "Application configuration"
+
+module = ICM20948_DRIVER
+module-str = ICM20948 driver
+
+config ICM20948_DRIVER
+	bool "Enable support for the demonstration out of tree driver"
+
+source "subsys/logging/Kconfig.template.log_config"
+
+endmenu
+
+# source "Kconfig.zephyr"
