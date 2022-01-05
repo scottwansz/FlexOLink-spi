@@ -13,7 +13,7 @@
 
 LOG_MODULE_REGISTER(ad4696, CONFIG_AD4696_DRIVER_LOG_LEVEL);
 
-#define MY_SPIM DT_NODELABEL(spi0)
+#define MY_SPIM DT_NODELABEL(spi1)
 
 /**
  * This is a minimal example of an out-of-tree driver
@@ -132,11 +132,11 @@ static void print_impl(const struct device *dev)
 {
 	LOG_INF("Hello World from the AD4696: %d", data.foo);
 
-	uint8_t opcode[] = {0x80, 0x0c}, data[2];
+	uint8_t opcode[] = {0x80, 0x03}, data[4];
 	LOG_INF("size of opcode: %d", sizeof(opcode));
 
 	spi_rw(opcode, sizeof(opcode), data, sizeof(data));
-	LOG_INF("spi data: %#02x %02x", data[0], data[1]);
+	LOG_INF("spi data: %#02x %02x %02x %02x", data[0], data[1], data[2], data[3]);
 
 
 	__ASSERT(data.foo == 5, "Device was not initialized!");

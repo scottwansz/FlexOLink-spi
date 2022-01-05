@@ -5,7 +5,7 @@
 
 LOG_MODULE_REGISTER(icm20948, CONFIG_ICM20948_DRIVER_LOG_LEVEL);
 
-#define MY_SPIM DT_NODELABEL(spi1)
+#define MY_SPIM DT_NODELABEL(spi0)
 
 const struct device * device_spi;
 
