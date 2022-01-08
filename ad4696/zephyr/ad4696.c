@@ -65,14 +65,6 @@ static void spi_config(void)
 }
 
 
-static int init(const struct device *dev)
-{
-	data.foo = 5;
-	spi_config();
-	return 0;
-}
-
-
 // spi read and write
 static int spi_rw(
         uint8_t *opcode, 
@@ -81,10 +73,10 @@ static int spi_rw(
         size_t  data_size
     )
 {
-    bool isWREG = ( opcode[0] >= 0x80 ? false : true );
+    bool isWREG = ( (opcode_size > 0) && (opcode[0] >= 0x80) ? false : true );
 	LOG_INF("isWRG: %s", isWREG ? "true" : "false");
 
-    LOG_INF("SPI opcode: %#02x %02x", opcode[0], opcode[1]);
+    // LOG_INF("SPI opcode: %#02x %02x", opcode[0], opcode[1]);
 	// for (int i = 0; i < opcode_size; i++)
 	// {
 	// 	printk("%#x ", opcode[i]);
@@ -127,17 +119,52 @@ static int spi_rw(
 };
 
 
+static int init(const struct device *dev)
+{
+	data.foo = 5;
+	spi_config();
+
+	return 0;
+};
+
 
 static void print_impl(const struct device *dev)
 {
 	LOG_INF("Hello World from the AD4696: %d", data.foo);
 
-	uint8_t opcode[] = {0x80, 0x03}, data[4];
-	LOG_INF("size of opcode: %d", sizeof(opcode));
+	// uint8_t opcode[] = {0x80, 0x03}, data[4];
+	// spi_rw(opcode, sizeof(opcode), data, sizeof(data));
 
+	// enable temprature
+	uint8_t opcode[] = {0x0, 0x29}, data[] = {0x01};
 	spi_rw(opcode, sizeof(opcode), data, sizeof(data));
-	LOG_INF("spi data: %#02x %02x %02x %02x", data[0], data[1], data[2], data[3]);
 
+	// config standard sequence
+	uint8_t opcode_cfg_seq[] = {0x0, 0x24}, data_cf_seq[] = {0xff};
+	spi_rw(opcode_cfg_seq, sizeof(opcode_cfg_seq), data_cf_seq, sizeof(data_cf_seq));
+
+	// enable conversion mode
+	uint8_t opcode2[] = {0x0, 0x20}, data2[] = {0x14};
+	spi_rw(opcode2, sizeof(opcode2), data2, sizeof(data2));
+
+	uint8_t sample_data[34];
+	spi_rw(NULL, 0, sample_data, sizeof(sample_data));
+	// LOG_INF("spi data: %#02x %02x %02x %02x", sample_data[0], sample_data[1], 
+	// 	sample_data[2], sample_data[3]);
+
+	printk("sample data: ");
+	for (size_t i = 0; i < sizeof(sample_data); i++)
+	{
+		printk("%#x ", sample_data[i]);
+	}
+	printk("\n");
+
+	printk("sample data: ");
+	for (size_t i = 0; i < sizeof(sample_data)/2; i++)
+	{
+		printk("%#x ", sample_data[i*2] << 8 | sample_data[i*2 + 1]);
+	}
+	printk("\n");	
 
 	__ASSERT(data.foo == 5, "Device was not initialized!");
 }
