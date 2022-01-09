@@ -23,6 +23,13 @@ const struct device *dev;
 static void user_entry(void *p1, void *p2, void *p3)
 {
 	ad4696_print(dev);
+	ad4696_setup(dev);
+
+	while (true)
+	{
+		k_msleep(1000);
+		ad4696_fetch_data(dev);
+	}
 }
 
 

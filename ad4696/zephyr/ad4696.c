@@ -73,14 +73,17 @@ static int spi_rw(
         size_t  data_size
     )
 {
-    bool isWREG = ( (opcode_size > 0) && (opcode[0] >= 0x80) ? false : true );
-	LOG_INF("isWRG: %s", isWREG ? "true" : "false");
+    bool isWREG = (opcode_size > 0) && (opcode[0] < 0x80);
+	// LOG_INF("op_size: %d", opcode_size);
+	// LOG_INF("isWRG: %s", isWREG ? "true" : "false");
 
-    // LOG_INF("SPI opcode: %#02x %02x", opcode[0], opcode[1]);
-	// for (int i = 0; i < opcode_size; i++)
-	// {
-	// 	printk("%#x ", opcode[i]);
-	// }
+	if( opcode_size > 0 ){
+	    LOG_INF("SPI opcode: %#02x %02x", opcode[0], opcode[1]);
+
+		if(isWREG){
+			LOG_INF("write data: %#x", data[0]);
+		}
+	}
 
 	const struct spi_buf buf[2] = {
 		{
@@ -128,13 +131,7 @@ static int init(const struct device *dev)
 };
 
 
-static void print_impl(const struct device *dev)
-{
-	LOG_INF("Hello World from the AD4696: %d", data.foo);
-
-	// uint8_t opcode[] = {0x80, 0x03}, data[4];
-	// spi_rw(opcode, sizeof(opcode), data, sizeof(data));
-
+static void setup_impl(const struct device *dev){
 	// enable temprature
 	uint8_t opcode[] = {0x0, 0x29}, data[] = {0x01};
 	spi_rw(opcode, sizeof(opcode), data, sizeof(data));
@@ -146,26 +143,37 @@ static void print_impl(const struct device *dev)
 	// enable conversion mode
 	uint8_t opcode2[] = {0x0, 0x20}, data2[] = {0x14};
 	spi_rw(opcode2, sizeof(opcode2), data2, sizeof(data2));
+};
+
+
+static void fetch_data_impl(const struct device *dev){
+	// uint8_t opcode[] = {0x80, 0x03}, data[4];
+	// spi_rw(opcode, sizeof(opcode), data, sizeof(data));
 
 	uint8_t sample_data[34];
 	spi_rw(NULL, 0, sample_data, sizeof(sample_data));
 	// LOG_INF("spi data: %#02x %02x %02x %02x", sample_data[0], sample_data[1], 
 	// 	sample_data[2], sample_data[3]);
 
-	printk("sample data: ");
-	for (size_t i = 0; i < sizeof(sample_data); i++)
-	{
-		printk("%#x ", sample_data[i]);
-	}
-	printk("\n");
+	// printk("sample data: ");
+	// for (size_t i = 0; i < sizeof(sample_data); i++)
+	// {
+	// 	printk("%#x ", sample_data[i]);
+	// }
+	// printk("\n");
 
-	printk("sample data: ");
+	LOG_INF("sample data: ");
 	for (size_t i = 0; i < sizeof(sample_data)/2; i++)
 	{
 		printk("%#x ", sample_data[i*2] << 8 | sample_data[i*2 + 1]);
 	}
 	printk("\n");	
+};
 
+
+static void print_impl(const struct device *dev)
+{
+	LOG_INF("Hello World from the AD4696: %d", data.foo);
 	__ASSERT(data.foo == 5, "Device was not initialized!");
 }
 
@@ -183,4 +191,8 @@ static inline void z_vrfy_ad4696_print(const struct device *dev)
 DEVICE_DEFINE(ad4696, "ADI_AD4696",
 		    init, NULL, &data, NULL,
 		    APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
-		    &((struct ad4696_driver_api){ .print = print_impl }));
+		    &((struct ad4696_driver_api){ 
+				.print = print_impl,
+				.setup = setup_impl,
+				.fetch_data = fetch_data_impl
+			}));

@@ -178,6 +178,29 @@ __subsystem struct ad4696_driver_api {
 	 * argument and returns 'void'.
 	 */
 	void (*print)(const struct device *dev);
+	void (*setup)(const struct device *dev);
+	void (*fetch_data)(const struct device *dev);
+};
+
+__syscall     void        ad4696_setup(const struct device *dev);
+static inline void z_impl_ad4696_setup(const struct device *dev)
+{
+	const struct ad4696_driver_api *api = dev->api;
+
+	__ASSERT(api->setup, "Callback pointer should not be NULL");
+
+	api->setup(dev);
+};
+
+
+__syscall     void        ad4696_fetch_data(const struct device *dev);
+static inline void z_impl_ad4696_fetch_data(const struct device *dev)
+{
+	const struct ad4696_driver_api *api = dev->api;
+
+	__ASSERT(api->fetch_data, "Callback pointer should not be NULL");
+
+	api->fetch_data(dev);
 };
 
 __syscall     void        ad4696_print(const struct device *dev);
@@ -188,7 +211,7 @@ static inline void z_impl_ad4696_print(const struct device *dev)
 	__ASSERT(api->print, "Callback pointer should not be NULL");
 
 	api->print(dev);
-}
+};
 
 #ifdef __cplusplus
 }
