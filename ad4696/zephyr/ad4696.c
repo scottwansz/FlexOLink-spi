@@ -8,6 +8,7 @@
 #include <syscall_handler.h>
 #include <drivers/spi.h>
 #include <logging/log.h>
+#include <drivers/sensor.h>
 
 #include "ad4696.h"
 
@@ -21,7 +22,7 @@ LOG_MODULE_REGISTER(ad4696, CONFIG_AD4696_DRIVER_LOG_LEVEL);
  */
 
 static struct ad4696_dev_data {
-	uint32_t foo;
+	// uint32_t foo;
 } data;
 
 
@@ -124,7 +125,7 @@ static int spi_rw(
 
 static int init(const struct device *dev)
 {
-	data.foo = 5;
+	// data.foo = 5;
 	spi_config();
 
 	return 0;
@@ -146,36 +147,36 @@ static void setup_impl(const struct device *dev){
 };
 
 
-static void fetch_data_impl(const struct device *dev){
+static void fetch_data_impl(const struct device *dev, struct sensor_value *values){
 	// uint8_t opcode[] = {0x80, 0x03}, data[4];
 	// spi_rw(opcode, sizeof(opcode), data, sizeof(data));
 
 	uint8_t sample_data[34];
 	spi_rw(NULL, 0, sample_data, sizeof(sample_data));
-	// LOG_INF("spi data: %#02x %02x %02x %02x", sample_data[0], sample_data[1], 
-	// 	sample_data[2], sample_data[3]);
 
-	// printk("sample data: ");
-	// for (size_t i = 0; i < sizeof(sample_data); i++)
-	// {
-	// 	printk("%#x ", sample_data[i]);
-	// }
-	// printk("\n");
+	int16_t code = 0;
+	double	volt = 0;
 
 	LOG_INF("sample data: ");
 	for (size_t i = 0; i < sizeof(sample_data)/2; i++)
 	{
-		printk("%#x ", sample_data[i*2] << 8 | sample_data[i*2 + 1]);
+		code = (sample_data[i*2] << 8) | sample_data[i*2 + 1];
+		volt = code / 0x8000 * 2.5;	// volt(V)
+		sensor_value_from_double(&values[i], volt);
+
+		printk("[%d] %#x %d ", i, (sample_data[i*2] << 8) | sample_data[i*2 + 1], (int16_t)(volt * 1000000));
+		// printk("[%d] %d ", i, (uint16_t)(volt * 1000000));
 	}
 	printk("\n");	
 };
 
 
-static void print_impl(const struct device *dev)
-{
-	LOG_INF("Hello World from the AD4696: %d", data.foo);
-	__ASSERT(data.foo == 5, "Device was not initialized!");
-}
+// static void print_impl(const struct device *dev)
+// {
+// 	LOG_INF("Hello World from the AD4696: %d", data.foo);
+// 	__ASSERT(data.foo == 5, "Device was not initialized!");
+// }
+
 
 #ifdef CONFIG_USERSPACE
 static inline void z_vrfy_ad4696_print(const struct device *dev)
@@ -192,7 +193,7 @@ DEVICE_DEFINE(ad4696, "ADI_AD4696",
 		    init, NULL, &data, NULL,
 		    APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
 		    &((struct ad4696_driver_api){ 
-				.print = print_impl,
+				// .print = print_impl,
 				.setup = setup_impl,
 				.fetch_data = fetch_data_impl
 			}));

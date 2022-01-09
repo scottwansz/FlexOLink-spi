@@ -9,6 +9,7 @@
 #include <devicetree.h>
 #include <drivers/gpio.h>
 #include <logging/log.h>
+#include <drivers/sensor.h>
 
 #include "ad4696.h"
 #include "icm20948.h"
@@ -19,16 +20,24 @@ LOG_MODULE_REGISTER(main);
 #define SLEEP_TIME_MS   1000
 
 const struct device *dev;
+struct sensor_value ad4696_data[17];
 
 static void user_entry(void *p1, void *p2, void *p3)
 {
-	ad4696_print(dev);
+	// ad4696_print(dev);
 	ad4696_setup(dev);
 
 	while (true)
 	{
-		k_msleep(1000);
-		ad4696_fetch_data(dev);
+		k_msleep(2000);
+		ad4696_fetch_data(dev, ad4696_data);
+
+		// LOG_INF("AD4696 data: ");
+		// for (size_t i = 0; i < 17; i++)
+		// {
+		// 	printk("[%d]%d ", i, (int16_t)(sensor_value_to_double( &ad4696_data[i] ) * 1000000) ); // volt(µV)
+		// }
+		// printk("\n");
 	}
 }
 
