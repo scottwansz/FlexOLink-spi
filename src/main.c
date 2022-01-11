@@ -24,14 +24,16 @@ struct sensor_value ad4696_data[17];
 
 static void user_entry(void *p1, void *p2, void *p3)
 {
+	ad4696_print(dev);
+	k_msleep(5000);
 
 	ad4696_setup(dev);
-	ad4696_print(dev);
 	
 	while (true)
 	{
 		k_msleep(2000);
-		// ad4696_fetch_data(dev, ad4696_data);
+		
+		ad4696_fetch_data(dev, ad4696_data);
 
 		// LOG_INF("AD4696 data: ");
 		// for (size_t i = 0; i < 17; i++)

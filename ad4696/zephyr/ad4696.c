@@ -134,49 +134,50 @@ static int init(const struct device *dev)
 
 static void setup_impl(const struct device *dev){
 	// enable temprature
-	// uint8_t opcode[] = {0x0, 0x29}, data[] = {0x01};
-	// spi_rw(opcode, sizeof(opcode), data, sizeof(data));
+	uint8_t opcode[] = {0x0, 0x29}, data[] = {0x01};
+	spi_rw(opcode, sizeof(opcode), data, sizeof(data));
 
 	// config standard sequence
-	// uint8_t opcode_cfg_seq[] = {0x0, 0x24}, data_cf_seq[] = {0xff};
-	// spi_rw(opcode_cfg_seq, sizeof(opcode_cfg_seq), data_cf_seq, sizeof(data_cf_seq));
+	uint8_t opcode_cfg_seq[] = {0x0, 0x24}, data_cf_seq[] = {0xff, 0xff};
+	spi_rw(opcode_cfg_seq, sizeof(opcode_cfg_seq), data_cf_seq, sizeof(data_cf_seq));
 
 	// enable conversion mode
-	// uint8_t opcode2[] = {0x0, 0x20}, data2[] = {0x14};
-	// spi_rw(opcode2, sizeof(opcode2), data2, sizeof(data2));
+	uint8_t opcode2[] = {0x0, 0x20}, data2[] = {0x14};
+	spi_rw(opcode2, sizeof(opcode2), data2, sizeof(data2));
 };
 
 
 static void fetch_data_impl(const struct device *dev, struct sensor_value *values){
 
-	// uint8_t sample_data[4];
-	// spi_rw(NULL, 0, sample_data, sizeof(sample_data));
+	uint8_t data[34];
+	spi_rw(NULL, 0, data, sizeof(data));
+	// LOG_INF("Sample data: %#x %#x %#x %#x", data[0], data[1], data[2], data[3]);
 
 	// int16_t code = 0;
 	// double	volt = 0;
 
-	// LOG_INF("sample data: ");
-	// for (size_t i = 0; i < sizeof(sample_data); i++)
-	// {
-	// 	// code = (sample_data[i*2] << 8) | sample_data[i*2 + 1];
-	// 	// volt = code / 0x8000 * 2.5;	// volt(V)
-	// 	// sensor_value_from_double(&values[i], volt);
+	LOG_INF("sample data: ");
+	for (size_t i = 0; i < sizeof(data) / 2; i++)
+	{
+		printk("[%d] %#x ", i, data[i*2] << 8 | data[i*2 + 1]);
+		// code = (sample_data[i*2] << 8) | sample_data[i*2 + 1];
+		// volt = code / 0x8000 * 2.5;	// volt(V)
+		// sensor_value_from_double(&values[i], volt);
 
-	// 	// printk("[%d] %#x %d ", i, (sample_data[i*2] << 8) | sample_data[i*2 + 1], (int16_t)(volt * 1000000));
-	// 	printk("[%d] %#x ", i, sample_data[i]);
-	// 	// printk("[%d] %d ", i, (uint16_t)(volt * 1000000));
-	// }
-	// printk("\n");	
+		// printk("[%d] %#x %d ", i, (sample_data[i*2] << 8) | sample_data[i*2 + 1], (int16_t)(volt * 1000000));
+		// printk("[%d] %d ", i, (uint16_t)(volt * 1000000));
+	}
+	printk("\n");	
 };
 
 
 static void print_impl(const struct device *dev)
 {
-	LOG_INF("Hello World from the AD4696: %d", data.foo);
+	// LOG_INF("Hello World from the AD4696: %d", data.foo);
 
-	uint8_t opcode[2] = {0x80, 0x03}, data[3];
+	uint8_t opcode[2] = {0x80, 0x03}, data[4];
 	spi_rw(opcode, sizeof(opcode), data, sizeof(data));
-	LOG_INF("SPI data: %#x %#x %#x", data[0], data[1], data[2]);
+	LOG_INF("SPI data: %#x %#x %#x %#x", data[0], data[1], data[2], data[3]);
 
 	__ASSERT(data.foo == 5, "Device was not initialized!");
 }
