@@ -1,0 +1,13 @@
+mainmenu "BLE SERVICE"
+
+menu "Application configuration"
+
+module = BLE_SERVICE
+module-str = BLE service
+
+config BLE_SERVICE
+	bool "Enable support for the demonstration out of tree driver"
+
+source "subsys/logging/Kconfig.template.log_config"
+
+endmenu

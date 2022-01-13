@@ -1,6 +1,7 @@
 list(APPEND ZEPHYR_EXTRA_MODULES
   ${CMAKE_CURRENT_SOURCE_DIR}/icm20948
   ${CMAKE_CURRENT_SOURCE_DIR}/ad4696
+  ${CMAKE_CURRENT_SOURCE_DIR}/ble
 )
 
 cmake_minimum_required(VERSION 3.13.1)
@@ -9,5 +10,4 @@ project(blinky)
 
 target_sources(app PRIVATE 
     src/main.c
-    # icm20948/icm20948.c
 )
