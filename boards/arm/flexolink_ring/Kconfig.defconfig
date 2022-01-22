@@ -1,0 +1,12 @@
+# Copyright (c) 2021 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_FLEXOLINK_RING
+
+config BOARD
+	default "flexolink_ring"
+
+config BT_CTLR
+   default BT
+
+endif
